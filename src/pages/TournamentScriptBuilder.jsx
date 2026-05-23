@@ -2,7 +2,7 @@ import { useState, useCallback } from "react";
 
 // Little League league age rules:
 // League age = age as of 31 Aug of the CURRENT season year
-// (i.e. how old you turn between 1 Sep prev year and 31 Aug current year)
+// (i.e. how old the player is between 1 Sep prev year and 31 Aug current year)
 // Season year = the calendar year of the tournament start date
 
 const DAYS_OF_WEEK = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"];
