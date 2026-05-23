@@ -29,7 +29,7 @@ const emptyPlayer = () => ({ id: uid(), surname: "", firstName: "", number: "", 
 const emptyTeam  = () => ({ id: uid(), name: "", league: "LL", players: [emptyPlayer()] });
 const emptyDay   = (i) => ({ id: uid(), label: DAYS_OF_WEEK[i % 7], games: 2 });
 
-// ── Styles ────────────────────────────────────────────────────────────────────
+// ── Styles ─────────────────────────────────────────────────────────────────────
 const S = {
   wrap: {
     minHeight:"100vh", background:"#0a1628",
@@ -87,6 +87,12 @@ const S = {
     gridTemplateColumns:"1fr 1fr 60px 110px 28px",
     gap:8, alignItems:"end", marginBottom:6,
   },
+  playerHdr: {
+    display:"grid",
+    gridTemplateColumns:"1fr 1fr 60px 110px 28px",
+    gap:8, marginBottom:4, padding:"0 0 4px",
+    borderBottom:"1px solid rgba(200,168,75,0.15)",
+  },
   dayCard: {
     background:"rgba(200,168,75,0.06)", border:"1px solid rgba(200,168,75,0.2)",
     borderRadius:8, padding:"12px 16px", marginBottom:8,
@@ -108,21 +114,13 @@ const S = {
   stepList: {
     background:"rgba(200,168,75,0.06)", border:"1px solid rgba(200,168,75,0.2)",
     borderRadius:10, padding:"20px 24px", marginTop:16,
-    listStyle:"none", counterReset:"steps",
+    listStyle:"none",
   },
-  step: {
-    counterIncrement:"steps", paddingLeft:36,
-    position:"relative", marginBottom:12, fontSize:"0.88rem", lineHeight:1.6,
-    color:"#c8d8e8",
+  infoBox: {
+    background:"rgba(80,160,80,0.1)", border:"1px solid rgba(80,160,80,0.3)",
+    borderRadius:8, padding:"12px 16px", marginTop:12,
+    fontSize:"0.82rem", color:"#a8d8a8", lineHeight:1.7,
   },
-  badge: (color) => ({
-    display:"inline-block", padding:"2px 8px", borderRadius:4,
-    fontSize:"0.72rem", fontWeight:"bold", letterSpacing:"0.05em",
-    background: color==="gold" ? "rgba(200,168,75,0.2)" : "rgba(100,180,100,0.2)",
-    color: color==="gold" ? "#c8a84b" : "#80d880",
-    border:`1px solid ${color==="gold" ? "rgba(200,168,75,0.4)" : "rgba(100,180,100,0.3)"}`,
-    marginLeft:6,
-  }),
 };
 
 // ── Main Component ─────────────────────────────────────────────────────────────
@@ -135,7 +133,7 @@ export default function Tracker() {
   const [generated,   setGenerated]   = useState("");
   const [copied,      setCopied]      = useState(false);
 
-  // ── Day helpers ──────────────────────────────────────────────────────────────
+  // ── Day helpers ────────────────────────────────────────────────────────────
   const setDayCount = (n) => {
     n = Math.max(1, Math.min(10, Number(n)));
     setNumDays(n);
@@ -147,7 +145,7 @@ export default function Tracker() {
   };
   const updateDay = (i, field, val) => setDays(p => p.map((d,j) => j===i ? {...d,[field]:val} : d));
 
-  // ── Team helpers ─────────────────────────────────────────────────────────────
+  // ── Team helpers ───────────────────────────────────────────────────────────
   const addTeam    = () => setTeams(p => p.length < 20 ? [...p, emptyTeam()] : p);
   const removeTeam = (id) => setTeams(p => p.filter(t => t.id !== id));
   const updateTeam = (id, field, val) => setTeams(p => p.map(t => t.id===id ? {...t,[field]:val} : t));
@@ -161,7 +159,7 @@ export default function Tracker() {
     t.id===tid ? {...t, players: t.players.map(pl =>
       pl.id===pid ? {...pl,[field]:val} : pl)} : t));
 
-  // ── Code generation ──────────────────────────────────────────────────────
+  // ── Code generation ────────────────────────────────────────────────────────
   const generate = useCallback(() => {
     const teamsJson = JSON.stringify(teams.map(t => ({
       name: t.name || "Team",
@@ -189,7 +187,7 @@ export default function Tracker() {
     });
   };
 
-  // ── Render ───────────────────────────────────────────────────────────────────
+  // ── Render ─────────────────────────────────────────────────────────────────
   return (
     <div style={S.wrap}>
       {/* Hero */}
@@ -296,11 +294,7 @@ export default function Tracker() {
               )}
 
               {/* Player column headers */}
-              <div style={{
-                display:"grid", gridTemplateColumns:"1fr 1fr 60px 110px 28px",
-                gap:8, marginBottom:4, padding:"0 0 4px",
-                borderBottom:"1px solid rgba(200,168,75,0.15)",
-              }}>
+              <div style={S.playerHdr}>
                 {["Surname","First Name","#","DOB",""].map((h,i) => (
                   <span key={i} style={{fontSize:"0.72rem",color:"#5a7a9a",letterSpacing:"0.04em"}}>{h}</span>
                 ))}
@@ -358,22 +352,23 @@ export default function Tracker() {
                 {[
                   <>Open <strong style={{color:"#c8a84b"}}>Google Sheets</strong> at <em>sheets.google.com</em> and click <strong style={{color:"#c8a84b"}}>+ Blank</strong> to create a new spreadsheet.</>,
                   <>At the top, click the menu <strong style={{color:"#c8a84b"}}>Extensions</strong>, then click <strong style={{color:"#c8a84b"}}>Apps Script</strong>. A new tab will open — this is the code editor.</>,
-                  <>You'll see a box with some default text (usually starting with "function myFunction"). <strong style={{color:"#c8a84b"}}>Select all of it</strong> (Ctrl+A on Windows, Cmd+A on Mac) and <strong style={{color:"#c8a84b"}}>delete it</strong>.</>,
-                  <>Go back to this page and click <strong style={{color:"#c8a84b"}}>Copy to Clipboard</strong> above. Then go back to the Apps Script tab and <strong style={{color:"#c8a84b"}}>paste</strong> (Ctrl+V or Cmd+V).</>,
+                  <>You'll see a box with some default code. <strong style={{color:"#c8a84b"}}>Select all</strong> (Ctrl+A on Windows, Cmd+A on Mac) and <strong style={{color:"#c8a84b"}}>delete</strong> it.</>,
+                  <>Go back to this page and click <strong style={{color:"#c8a84b"}}>Copy to Clipboard</strong> above. Then go back to Apps Script and <strong style={{color:"#c8a84b"}}>paste</strong> (Ctrl+V or Cmd+V).</>,
                   <>Click the <strong style={{color:"#c8a84b"}}>floppy disk icon 💾</strong> (or press Ctrl+S / Cmd+S) to save. Name the project anything you like.</>,
-                  <>At the top, there's a dropdown that says <strong style={{color:"#c8a84b"}}>"Select function"</strong>. Click it and choose <strong style={{color:"#c8a84b"}}>setupTournament</strong>.</>,
-                  <>Click the <strong style={{color:"#c8a84b"}}>▶ Run button</strong>. Google will ask for permission — click <strong style={{color:"#c8a84b"}}>Review Permissions</strong>, choose your Google account, then click <strong style={{color:"#c8a84b"}}>Allow</strong>.</>,
-                  <>Go back to your spreadsheet tab. You'll see a sheet tab for each team plus a <strong style={{color:"#c8a84b"}}>⚾ Tournament</strong> menu at the top.</>,
-                  <>Enter player data in each team's sheet. The <strong style={{color:"#c8a84b"}}>DO</strong> column, <strong style={{color:"#c8a84b"}}>STATUS</strong> colours, and blackout cells all update automatically as you type.</>,
-                  <>If something looks wrong, use the <strong style={{color:"#c8a84b"}}>⚾ Tournament → Recalculate All Sheets</strong> menu item to refresh everything.</>
+                  <>At the top, find the dropdown that says <strong style={{color:"#c8a84b"}}>"Select function"</strong>. Click it and choose <strong style={{color:"#c8a84b"}}>setupTournament</strong>.</>,
+                  <>Click the <strong style={{color:"#c8a84b"}}>▶ Run button</strong>. Google will ask for permission — click <strong style={{color:"#c8a84b"}}>Review Permissions</strong>, select your account, then <strong style={{color:"#c8a84b"}}>Allow</strong>.</>,
+                  <>Go back to your spreadsheet tab. You'll see team sheet tabs and a <strong style={{color:"#c8a84b"}}>⚾ Tournament</strong> menu at the top.</>,
+                  <>Enter player data in each team sheet. The DO column, STATUS colours, and blackout rules apply automatically.</>,
+                  <>If something looks wrong, use <strong style={{color:"#c8a84b"}}>⚾ Tournament → Recalculate All Sheets</strong> to refresh everything.</>
                 ].map((step,i) => (
                   <li key={i} style={{
-                    ...S.step, paddingLeft:36, marginBottom:14,
+                    paddingLeft:38, position:"relative", marginBottom:14,
+                    fontSize:"0.88rem", lineHeight:1.65, color:"#c8d8e8", listStyle:"none",
                   }}>
                     <span style={{
-                      position:"absolute", left:0, top:0,
+                      position:"absolute", left:0, top:1,
                       background:"rgba(200,168,75,0.2)", color:"#c8a84b",
-                      borderRadius:"50%", width:22, height:22,
+                      borderRadius:"50%", width:24, height:24,
                       display:"flex", alignItems:"center", justifyContent:"center",
                       fontSize:"0.75rem", fontWeight:"bold",
                     }}>{i+1}</span>
@@ -382,11 +377,7 @@ export default function Tracker() {
                 ))}
               </ol>
 
-              <div style={{
-                background:"rgba(80,160,80,0.1)", border:"1px solid rgba(80,160,80,0.3)",
-                borderRadius:8, padding:"12px 16px", marginTop:12,
-                fontSize:"0.82rem", color:"#a8d8a8", lineHeight:1.7,
-              }}>
+              <div style={S.infoBox}>
                 <strong>ℹ️ How PitchSmart ages work:</strong> Each player's age is calculated from their DOB against the
                 tournament start date you entered. The script automatically applies the correct pitch limits
                 (U12/U13/U14 share one table; U15-U16 another; U17-U18 another). Players without a DOB entered
@@ -405,12 +396,12 @@ export default function Tracker() {
 
 // ── Script builder ─────────────────────────────────────────────────────────────
 function buildScript(tourneyName, startDate, daysJson, teamsJson) {
-  return `// ═══════════════════════════════════════════════════════════════════════
+  return `// ════════════════════════════════════════════════════════════════════════
 // ${tourneyName} — Tournament Pitcher Tracker
 // Generated by Tournament Script Builder
-// ═══════════════════════════════════════════════════════════════════════
+// ════════════════════════════════════════════════════════════════════════
 
-// ── CONFIG ───────────────────────────────────────────────────────────────────
+// ── CONFIG ──────────────────────────────────────────────────────────────────
 const CONFIG = {
   tournamentName: ${JSON.stringify(tourneyName)},
   startDate: ${JSON.stringify(startDate || "")},   // YYYY-MM-DD; used to calculate player ages
@@ -418,7 +409,7 @@ const CONFIG = {
   teams: ${teamsJson},
 };
 
-// ── PitchSmart tables by age (derived from DOB at runtime) ───────────────────
+// ── PitchSmart tables by age (derived from DOB at runtime) ──────────────────
 function getPitchSmartForAge(age) {
   if (age <= 12) return { dailyMax:85, tiers:[{max:20,rest:0},{max:35,rest:1},{max:50,rest:2},{max:65,rest:3},{max:85,rest:4}] };
   if (age <= 14) return { dailyMax:85, tiers:[{max:20,rest:0},{max:35,rest:1},{max:50,rest:2},{max:65,rest:3},{max:85,rest:4}] };
@@ -445,19 +436,13 @@ function calcAge(dobStr, refDateStr) {
   } catch(e) { return null; }
 }
 
-// ── Column layout ─────────────────────────────────────────────────────────────
+// ── Column layout ──────────────────────────────────────────────────────────
 // Roster: Surname | FirstName | # | then per-game blocks
 // Each game block: DO | P | Start | STATUS | C
-// (DO=Designated Opener checkbox, P=total pitches, Start=first batter #, STATUS=rest calc, C=innings caught)
-const ROSTER_COLS = 3; // Surname, FirstName, #
-const GAME_COLS   = 5; // DO, P, Start, STATUS, C
+const ROSTER_COLS = 3;
+const GAME_COLS   = 5;
 const GAME_HDR    = ["DO","P","Start","STATUS","C"];
 
-function gameColOffset(gameIndex) {
-  return ROSTER_COLS + gameIndex * GAME_COLS;
-}
-
-// Build flat list of games: [{dayIdx, gameNum, dayLabel}]
 function buildGameList() {
   var games = [];
   CONFIG.days.forEach(function(d, di) {
@@ -468,12 +453,11 @@ function buildGameList() {
   return games;
 }
 
-// ── Main setup ────────────────────────────────────────────────────────────────
+// ── Main setup ─────────────────────────────────────────────────────────────
 function setupTournament() {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   ss.setName(CONFIG.tournamentName);
 
-  // Remove old team sheets (keep Sheet1 as home if needed)
   var existing = ss.getSheets();
   existing.forEach(function(sh) {
     if (sh.getName() !== "Sheet1") ss.deleteSheet(sh);
@@ -484,11 +468,9 @@ function setupTournament() {
     buildTeamSheet(sh, team);
   });
 
-  // Remove blank Sheet1 if still there
   var blank = ss.getSheetByName("Sheet1");
   if (blank && ss.getSheets().length > 1) ss.deleteSheet(blank);
 
-  // Add custom menu
   SpreadsheetApp.getUi().createMenu("⚾ Tournament")
     .addItem("Recalculate All Sheets", "recalcAll")
     .addItem("Re-run Setup (clears data)", "setupTournament")
@@ -505,7 +487,7 @@ function recalcAll() {
   });
 }
 
-// ── Build a team sheet ────────────────────────────────────────────────────────
+// ── Build a team sheet ─────────────────────────────────────────────────────
 function buildTeamSheet(sh, team) {
   var games = buildGameList();
   var totalCols = ROSTER_COLS + games.length * GAME_COLS;
@@ -513,7 +495,7 @@ function buildTeamSheet(sh, team) {
   sh.clearContents();
   sh.clearFormats();
 
-  // ── Row 1: Day headers (merged per day) ──────────────────────────────────
+  // Row 1: Day group headers
   var dayGroups = {};
   games.forEach(function(g, gi) {
     var key = g.dayIdx;
@@ -521,13 +503,8 @@ function buildTeamSheet(sh, team) {
     dayGroups[key].count++;
   });
 
-  var row1 = sh.getRange(1, 1, 1, totalCols);
-  row1.setBackground("#1a2f4e").setFontColor("#c8a84b").setFontWeight("bold")
-      .setHorizontalAlignment("center");
-
-  // Roster header
   sh.getRange(1,1,1,ROSTER_COLS).merge().setValue(CONFIG.tournamentName)
-    .setBackground("#0d2040").setFontColor("#c8a84b");
+    .setBackground("#0d2040").setFontColor("#c8a84b").setFontWeight("bold");
 
   Object.keys(dayGroups).forEach(function(key) {
     var dg = dayGroups[key];
@@ -536,26 +513,23 @@ function buildTeamSheet(sh, team) {
     var cell = sh.getRange(1, startCol, 1, spanCols);
     if (spanCols > 1) cell.merge();
     cell.setValue(dg.label).setBackground("#1a2f4e").setFontColor("#c8a84b")
-        .setHorizontalAlignment("center");
+        .setHorizontalAlignment("center").setFontWeight("bold");
   });
 
-  // ── Row 2: Game headers ─────────────────────────────────────────────────
+  // Row 2: Game headers
   sh.getRange(2, 1).setValue("Surname");
   sh.getRange(2, 2).setValue("First Name");
   sh.getRange(2, 3).setValue("#");
-
   games.forEach(function(g, gi) {
     var col = ROSTER_COLS + gi * GAME_COLS + 1;
-    var label = "Game " + g.gameNum;
-    sh.getRange(2, col, 1, GAME_COLS).merge().setValue(label)
+    sh.getRange(2, col, 1, GAME_COLS).merge()
+      .setValue("Game " + g.gameNum)
       .setBackground("#2a4060").setFontColor("#e8dcc8")
       .setHorizontalAlignment("center").setFontWeight("bold");
   });
+  sh.getRange(2, 1, 1, totalCols).setBackground("#2a4060").setFontColor("#e8dcc8").setFontWeight("bold");
 
-  sh.getRange(2, 1, 1, totalCols).setBackground("#2a4060").setFontColor("#e8dcc8")
-    .setFontWeight("bold").setHorizontalAlignment("center");
-
-  // ── Row 3: Column headers ───────────────────────────────────────────────
+  // Row 3: Column headers
   sh.getRange(3, 1).setValue("Surname");
   sh.getRange(3, 2).setValue("First Name");
   sh.getRange(3, 3).setValue("#");
@@ -567,60 +541,56 @@ function buildTeamSheet(sh, team) {
   sh.getRange(3, 1, 1, totalCols).setBackground("#1a3050").setFontColor("#8fa8c8")
     .setFontWeight("bold").setHorizontalAlignment("center");
 
-  // ── Rows 4+: Players ────────────────────────────────────────────────────
+  // Rows 4+: Players
   team.players.forEach(function(p, pi) {
     var row = 4 + pi;
     sh.getRange(row, 1).setValue(p.surname);
     sh.getRange(row, 2).setValue(p.firstName);
     sh.getRange(row, 3).setValue(p.number);
 
-    // Store DOB as a note on column 1 (not visible in grid, accessible to script)
     if (p.dob) sh.getRange(row, 1).setNote("DOB:" + p.dob);
 
-    // Alternate row shading
     var bg = pi % 2 === 0 ? "#0d1e30" : "#0a1628";
     sh.getRange(row, 1, 1, totalCols).setBackground(bg).setFontColor("#e8dcc8");
 
-    // Style each game block
     games.forEach(function(g, gi) {
       var baseCol = ROSTER_COLS + gi * GAME_COLS + 1;
-      // DO col
       sh.getRange(row, baseCol).setHorizontalAlignment("center");
-      // P, Start, C — number columns
       sh.getRange(row, baseCol+1).setHorizontalAlignment("center");
       sh.getRange(row, baseCol+2).setHorizontalAlignment("center");
-      sh.getRange(row, baseCol+4).setHorizontalAlignment("center");
-      // STATUS
       sh.getRange(row, baseCol+3).setHorizontalAlignment("center").setFontWeight("bold");
+      sh.getRange(row, baseCol+4).setHorizontalAlignment("center");
     });
   });
 
-  // ── Column widths ────────────────────────────────────────────────────────
   sh.setColumnWidth(1, 110);
   sh.setColumnWidth(2, 110);
   sh.setColumnWidth(3, 40);
   games.forEach(function(g, gi) {
     var base = ROSTER_COLS + gi * GAME_COLS + 1;
-    sh.setColumnWidth(base,   50);  // DO
-    sh.setColumnWidth(base+1, 45);  // P
-    sh.setColumnWidth(base+2, 50);  // Start
-    sh.setColumnWidth(base+3, 80);  // STATUS
-    sh.setColumnWidth(base+4, 40);  // C
+    sh.setColumnWidth(base,   50);
+    sh.setColumnWidth(base+1, 45);
+    sh.setColumnWidth(base+2, 50);
+    sh.setColumnWidth(base+3, 80);
+    sh.setColumnWidth(base+4, 40);
   });
 
   sh.freezeRows(3);
   sh.freezeColumns(3);
 }
 
-// ── onEdit trigger ────────────────────────────────────────────────────────────
+// ── onEdit trigger ─────────────────────────────────────────────────────────
 function onEdit(e) {
   var sh   = e.range.getSheet();
-  var team = CONFIG.teams.find(function(t) { return t.name === sh.getName(); });
+  var team = null;
+  for (var i = 0; i < CONFIG.teams.length; i++) {
+    if (CONFIG.teams[i].name === sh.getName()) { team = CONFIG.teams[i]; break; }
+  }
   if (!team) return;
   recalcSheet(sh, team);
 }
 
-// ── Recalculate all rules for a sheet ────────────────────────────────────────
+// ── Recalculate all rules for a sheet ──────────────────────────────────────
 function recalcSheet(sh, team) {
   var games   = buildGameList();
   var players = team.players;
@@ -628,28 +598,25 @@ function recalcSheet(sh, team) {
   players.forEach(function(p, pi) {
     var row = 4 + pi;
 
-    // Get player age from DOB note
-    var note = sh.getRange(row, 1).getNote() || "";
-    var dobMatch = note.match(/DOB:(\S+)/);
-    var dob  = dobMatch ? dobMatch[1] : (p.dob || "");
-    var age  = calcAge(dob, CONFIG.startDate) || getLeagueDefaultAge(team.league);
-    var ps   = getPitchSmartForAge(age);
+    var note     = sh.getRange(row, 1).getNote() || "";
+    var dobMatch = note.match(/DOB:([\\d-]+)/);
+    var dob      = dobMatch ? dobMatch[1] : (p.dob || "");
+    var age      = calcAge(dob, CONFIG.startDate) || getLeagueDefaultAge(team.league);
+    var ps       = getPitchSmartForAge(age);
 
-    // Read all game data for this player
     var gameData = games.map(function(g, gi) {
       var base = ROSTER_COLS + gi * GAME_COLS + 1;
       return {
-        gi:    gi,
-        g:     g,
-        doVal: (sh.getRange(row, base).getValue()   || "").toString().toUpperCase().trim(),
-        p:     Number(sh.getRange(row, base+1).getValue()) || 0,
-        start: Number(sh.getRange(row, base+2).getValue()) || 0,
-        c:     Number(sh.getRange(row, base+4).getValue()) || 0,
+        gi:      gi,
+        g:       g,
+        doVal:   (sh.getRange(row, base).getValue()   || "").toString().toUpperCase().trim(),
+        p:       Number(sh.getRange(row, base+1).getValue()) || 0,
+        start:   Number(sh.getRange(row, base+2).getValue()) || 0,
+        c:       Number(sh.getRange(row, base+4).getValue()) || 0,
         baseCol: base,
       };
     });
 
-    // ── Colour DO cells ────────────────────────────────────────────────────
     gameData.forEach(function(gd) {
       var doCell = sh.getRange(row, gd.baseCol);
       if (gd.doVal === "YES" || gd.doVal === "Y") {
@@ -661,12 +628,6 @@ function recalcSheet(sh, team) {
       }
     });
 
-    // ── Determine rest blackouts from cumulative pitches by day ────────────
-    // Track total pitches per day
-    var pitchesByDay = {};
-    var pitchedDays  = []; // sorted day indices where pitches > 0
-
-    // Group games by dayIdx for cumulative daily totals
     var gamesByDay = {};
     gameData.forEach(function(gd) {
       var di = gd.g.dayIdx;
@@ -674,6 +635,8 @@ function recalcSheet(sh, team) {
       gamesByDay[di].push(gd);
     });
 
+    var pitchesByDay = {};
+    var pitchedDays  = [];
     Object.keys(gamesByDay).forEach(function(di) {
       di = Number(di);
       var total = 0;
@@ -681,37 +644,26 @@ function recalcSheet(sh, team) {
       pitchesByDay[di] = total;
       if (total > 0) pitchedDays.push(di);
     });
-    pitchedDays.sort(function(a,b){return a-b;});
+    pitchedDays.sort(function(a,b){ return a-b; });
 
-    // For each day with pitches, determine rest days needed
-    var blackoutDays = {}; // di -> reason
+    var blackoutDays = {};
     pitchedDays.forEach(function(di) {
-      var total = pitchesByDay[di];
-      var restNeeded = 0;
-      for (var t = ps.tiers.length-1; t >= 0; t--) {
-        if (total <= ps.tiers[t].max) restNeeded = ps.tiers[t].rest;
-        else break;
-      }
-      // Actually walk tiers properly
-      restNeeded = 0;
+      var total       = pitchesByDay[di];
+      var restNeeded  = 0;
       for (var t = 0; t < ps.tiers.length; t++) {
         if (total <= ps.tiers[t].max) { restNeeded = ps.tiers[t].rest; break; }
       }
       for (var r = 1; r <= restNeeded; r++) {
-        var bd = di + r;
-        blackoutDays[bd] = "Rest " + restNeeded + "d";
+        blackoutDays[di + r] = "Rest " + restNeeded + "d";
       }
     });
 
-    // Consecutive 3-day rule: if pitched on day N and N+1, day N+2 is blacked
-    for (var i = 0; i < pitchedDays.length-1; i++) {
-      var d1 = pitchedDays[i], d2 = pitchedDays[i+1];
-      if (d2 === d1 + 1) {
-        blackoutDays[d1+2] = "3rd Day";
+    for (var i = 0; i < pitchedDays.length - 1; i++) {
+      if (pitchedDays[i+1] === pitchedDays[i] + 1) {
+        blackoutDays[pitchedDays[i] + 2] = "3rd Day";
       }
     }
 
-    // ── Process each game ─────────────────────────────────────────────────
     gameData.forEach(function(gd) {
       var statusCell = sh.getRange(row, gd.baseCol + 3);
       var pCell      = sh.getRange(row, gd.baseCol + 1);
@@ -719,51 +671,35 @@ function recalcSheet(sh, team) {
       var di         = gd.g.dayIdx;
       var gn         = gd.g.gameNum;
 
-      // Check if this game is blacked out by rest or 3-day rule
       if (blackoutDays[di]) {
-        // Entire day blacked out
         [pCell, startCell, statusCell].forEach(function(c) {
-          c.setBackground("#000000").setFontColor("#555555");
+          c.setBackground("#000000").setFontColor("#444444");
         });
         statusCell.setValue(blackoutDays[di]);
         return;
       }
 
-      // ── LL Two-game rule: Game 2 blacked if player pitched in Game 1 ──
       if (team.league === "LL" && gn === 2) {
-        var game1Data = gamesByDay[di] ? gamesByDay[di].find(function(x){ return x.g.gameNum===1; }) : null;
-        if (game1Data && game1Data.p > 0) {
+        var g1 = gamesByDay[di] ? gamesByDay[di].filter(function(x){ return x.g.gameNum===1; })[0] : null;
+        if (g1 && g1.p > 0) {
           [pCell, startCell, statusCell].forEach(function(c) {
-            c.setBackground("#000000").setFontColor("#555555");
+            c.setBackground("#000000").setFontColor("#444444");
           });
           statusCell.setValue("LL Rule");
           return;
         }
       }
 
-      // ── Flags: check rule violations ──────────────────────────────────
       var flags = [];
 
-      // Rule: If ≥21 pitches in Game 1, can't pitch in Game 2 (all leagues)
       if (gn === 2) {
-        var game1 = gamesByDay[di] ? gamesByDay[di].find(function(x){ return x.g.gameNum===1; }) : null;
-        if (game1 && game1.p >= 21 && gd.p > 0) {
-          flags.push("⚠️ Pitched ≥21 in G1");
+        var g1r = gamesByDay[di] ? gamesByDay[di].filter(function(x){ return x.g.gameNum===1; })[0] : null;
+        if (g1r) {
+          if (g1r.p >= 21 && gd.p > 0)  flags.push("⚠️ Pitched ≥21 in G1");
+          if (g1r.c >= 4  && gd.p > 0)  flags.push("⚠️ Caught ≥4 inn G1");
         }
       }
-
-      // Rule: If caught ≥4 inn in Game 1, can't pitch in Game 2
-      if (gn === 2) {
-        var game1c = gamesByDay[di] ? gamesByDay[di].find(function(x){ return x.g.gameNum===1; }) : null;
-        if (game1c && game1c.c >= 4 && gd.p > 0) {
-          flags.push("⚠️ Caught ≥4 inn G1");
-        }
-      }
-
-      // Rule: Can't catch ≥4 inn in same game AND pitch
-      if (gd.c >= 4 && gd.p > 0) {
-        flags.push("⚠️ C+P same game");
-      }
+      if (gd.c >= 4 && gd.p > 0) flags.push("⚠️ C+P same game");
 
       if (flags.length > 0) {
         statusCell.setValue(flags.join(" | ")).setBackground("#ff4444").setFontColor("#ffffff");
@@ -771,7 +707,6 @@ function recalcSheet(sh, team) {
         return;
       }
 
-      // ── Normal STATUS: calculate rest ─────────────────────────────────
       if (gd.p > 0) {
         var rest = 0;
         for (var t = 0; t < ps.tiers.length; t++) {
@@ -780,13 +715,12 @@ function recalcSheet(sh, team) {
         if (rest === 0) {
           statusCell.setValue("Nil").setBackground("#c8f0c8").setFontColor("#1a7a1a");
         } else {
-          statusCell.setValue(rest + " Day" + (rest>1?"s":""))
+          statusCell.setValue(rest + " Day" + (rest > 1 ? "s" : ""))
             .setBackground("#f5c842").setFontColor("#5a3d00");
         }
         pCell.setBackground(null).setFontColor("#e8dcc8");
         startCell.setBackground(null).setFontColor("#e8dcc8");
       } else {
-        // No pitches — clear status
         statusCell.setValue("").setBackground(null).setFontColor(null);
         pCell.setBackground(null).setFontColor(null);
         startCell.setBackground(null).setFontColor(null);
@@ -795,7 +729,7 @@ function recalcSheet(sh, team) {
   });
 }
 
-// ── onOpen: restore menu ──────────────────────────────────────────────────────
+// ── onOpen: restore menu ────────────────────────────────────────────────────
 function onOpen() {
   SpreadsheetApp.getUi().createMenu("⚾ Tournament")
     .addItem("Recalculate All Sheets", "recalcAll")
