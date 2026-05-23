@@ -73,7 +73,7 @@ const S = {
   },
   btn: (variant="primary") => ({
     padding: variant==="small" ? "5px 12px" : "10px 20px",
-    borderRadius:6, border:"none", cursor:"pointer", fontWeight:"bold",
+    cursor:"pointer", fontWeight:"bold",
     fontSize: variant==="small" ? "0.78rem" : "0.88rem",
     letterSpacing:"0.05em", transition:"all 0.2s",
     background: variant==="danger" ? "rgba(180,50,50,0.7)"
