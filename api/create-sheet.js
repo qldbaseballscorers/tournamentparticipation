@@ -189,7 +189,13 @@ module.exports = async function handler(req, res) {
   var drive  = google.drive({ version:"v3", auth:auth });
 
   try {
+try {
     var games = buildGameList(days);
+
+    // Test auth first
+    var testAuth = await auth.getClient();
+    var token = await testAuth.getAccessToken();
+    if (!token.token) return res.status(500).json({ error: "Auth failed - no token returned" });
 
     var created = await sheets.spreadsheets.create({
       requestBody: {
