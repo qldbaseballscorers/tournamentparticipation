@@ -1,25 +1,11 @@
 const { google } = require("googleapis");
 
-function calcLeagueAge(dobStr, startDateStr) {
-  if (!dobStr) return null;
-  try {
-    const dob      = new Date(dobStr);
-    const seasonYr = new Date(startDateStr || new Date()).getFullYear();
-    const cutoff   = new Date(seasonYr, 7, 31);
-    let age        = seasonYr - dob.getFullYear();
-    if (new Date(seasonYr, dob.getMonth(), dob.getDate()) > cutoff) age--;
-    return age;
-  } catch { return null; }
-}
-
-function getLeagueDefaultAge(league) {
-  return league==="LL" ? 12 : league==="IL" ? 13 : league==="JL" ? 15 : 17;
-}
+var TEMPLATE_ID = "12KWFbX5ikw-BHrrd2IwhPSbjMHhX1wtxcgZF4P0utbk";
 
 function buildGameList(days) {
-  const games = [];
-  days.forEach((d, di) => {
-    for (let g = 1; g <= d.games; g++) {
+  var games = [];
+  days.forEach(function(d, di) {
+    for (var g = 1; g <= d.games; g++) {
       games.push({ dayIdx: di, gameNum: g, dayLabel: d.label });
     }
   });
@@ -44,17 +30,17 @@ function fmt(bg, fg, bold, align) {
 }
 
 function buildSheetRequests(sheetId, team, games, tournamentName) {
-  const ROSTER_COLS = 3;
-  const GAME_COLS   = 5;
-  const totalCols   = ROSTER_COLS + games.length * GAME_COLS;
-  const requests    = [];
+  var ROSTER_COLS = 3;
+  var GAME_COLS   = 5;
+  var totalCols   = ROSTER_COLS + games.length * GAME_COLS;
+  var requests    = [];
 
-  function rc(r,c)         { return { sheetId, startRowIndex:r, endRowIndex:r+1, startColumnIndex:c, endColumnIndex:c+1 }; }
-  function rr(r1,r2,c1,c2) { return { sheetId, startRowIndex:r1, endRowIndex:r2, startColumnIndex:c1, endColumnIndex:c2 }; }
+  function rc(r,c)         { return { sheetId:sheetId, startRowIndex:r, endRowIndex:r+1, startColumnIndex:c, endColumnIndex:c+1 }; }
+  function rr(r1,r2,c1,c2) { return { sheetId:sheetId, startRowIndex:r1, endRowIndex:r2, startColumnIndex:c1, endColumnIndex:c2 }; }
 
   // Freeze
   requests.push({ updateSheetProperties: {
-    properties: { sheetId, gridProperties: { frozenRowCount:3, frozenColumnCount:3 } },
+    properties: { sheetId:sheetId, gridProperties: { frozenRowCount:3, frozenColumnCount:3 } },
     fields: "gridProperties.frozenRowCount,gridProperties.frozenColumnCount"
   }});
 
@@ -66,7 +52,7 @@ function buildSheetRequests(sheetId, team, games, tournamentName) {
   });
   widths.forEach(function(x) {
     requests.push({ updateDimensionProperties: {
-      range: { sheetId, dimension:"COLUMNS", startIndex:x.i, endIndex:x.i+1 },
+      range: { sheetId:sheetId, dimension:"COLUMNS", startIndex:x.i, endIndex:x.i+1 },
       properties: { pixelSize:x.w }, fields:"pixelSize"
     }});
   });
@@ -151,14 +137,14 @@ function buildSheetRequests(sheetId, team, games, tournamentName) {
 }
 
 module.exports = async function handler(req, res) {
+  res.setHeader("Content-Type", "application/json");
+
   if (req.method !== "POST") {
     return res.status(405).json({ error:"Method not allowed" });
   }
 
   var body = req.body;
-  if (!body) {
-    return res.status(400).json({ error:"No request body" });
-  }
+  if (!body) return res.status(400).json({ error:"No request body" });
 
   var tournamentName = body.tournamentName;
   var startDate      = body.startDate;
@@ -191,25 +177,47 @@ module.exports = async function handler(req, res) {
   try {
     var games = buildGameList(days);
 
-    var created = await sheets.spreadsheets.create({
-      requestBody: {
-        properties: { title: tournamentName },
-        sheets: teams.map(function(t) {
-          return { properties: { title: t.name || "Team" } };
-        }),
-      }
+    // Copy the template instead of creating from scratch
+    var copied = await drive.files.copy({
+      fileId: TEMPLATE_ID,
+      requestBody: { name: tournamentName },
     });
 
-    var spreadsheetId = created.data.spreadsheetId;
-    var sheetMeta     = created.data.sheets;
+    var spreadsheetId = copied.data.id;
 
+    // Get the copied sheet's existing sheets so we can delete/add tabs
+    var meta = await sheets.spreadsheets.get({ spreadsheetId: spreadsheetId });
+    var existingSheets = meta.data.sheets;
+
+    // Build add sheet requests for each team
+    var setupRequests = [];
+    teams.forEach(function(team) {
+      setupRequests.push({ addSheet: { properties: { title: team.name || "Team" } } });
+    });
+
+    // Delete all existing sheets after adding new ones
+    existingSheets.forEach(function(s) {
+      setupRequests.push({ deleteSheet: { sheetId: s.properties.sheetId } });
+    });
+
+    var setupResult = await sheets.spreadsheets.batchUpdate({
+      spreadsheetId: spreadsheetId,
+      requestBody: { requests: setupRequests }
+    });
+
+    // Get the new sheet IDs from the response
+    var newSheetIds = setupResult.data.replies
+      .filter(function(r) { return r.addSheet; })
+      .map(function(r) { return r.addSheet.properties.sheetId; });
+
+    // Build formatting requests for each team
     var allRequests = [];
     teams.forEach(function(team, ti) {
-      var sheetId = sheetMeta[ti].properties.sheetId;
-      var reqs    = buildSheetRequests(sheetId, team, games, tournamentName);
+      var reqs = buildSheetRequests(newSheetIds[ti], team, games, tournamentName);
       allRequests = allRequests.concat(reqs);
     });
 
+    // Send in batches of 50
     for (var i = 0; i < allRequests.length; i += 50) {
       await sheets.spreadsheets.batchUpdate({
         spreadsheetId: spreadsheetId,
@@ -217,6 +225,7 @@ module.exports = async function handler(req, res) {
       });
     }
 
+    // Share to user
     await drive.permissions.create({
       fileId: spreadsheetId,
       requestBody: { type:"user", role:"writer", emailAddress:email },
@@ -229,6 +238,6 @@ module.exports = async function handler(req, res) {
 
   } catch(err) {
     console.error("Error:", err.message);
-    return res.status(500).json({ error: err.message || "Failed to create spreadsheet" });
+    return res.status(500).json({ error: err.message });
   }
 };
