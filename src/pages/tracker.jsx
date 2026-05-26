@@ -35,7 +35,7 @@ export default function App() {
   const [teams,       setTeams]       = useState(() => [emptyTeam([0,1,2]), emptyTeam([0,1,2])]);
   const [sheetUrl,    setSheetUrl]    = useState("");
   const [errMsg,      setErrMsg]      = useState("");
-  const [pasteOpen,   setPasteOpen]   = useState({});
+  const [paste,   setPasteOpen]   = useState({});
   const [pasteText,   setPasteText]   = useState({});
   const [pasteErr,    setPasteErr]    = useState({});
 
@@ -208,7 +208,7 @@ export default function App() {
       <div style={{background:"linear-gradient(135deg,#0a1628 0%,#1a2f4e 50%,#0d2040 100%)",borderBottom:"3px solid #c8a84b",padding:"36px 32px 28px",textAlign:"center"}}>
         <div style={{fontSize:"2.2rem",marginBottom:6}}>⚾</div>
         <h1 style={{margin:"0 0 6px",fontSize:"2rem",fontWeight:"bold",color:"#c8a84b",letterSpacing:"0.1em",textTransform:"uppercase"}}>Tournament Participation Tracker</h1>
-        <p style={{margin:0,color:"#8fa8c8",fontSize:"0.88rem"}}>Fill in the details for the tournament, and we'll build your Google spreadsheet. You can open it straight away and it will be sent to your inbox.</p>
+        <p style={{margin:0,color:"#8fa8c8",fontSize:"0.88rem"}}>Complete the details for your tournament.</p>
       </div>
 
       <div style={{maxWidth:980,margin:"0 auto",padding:"0 20px"}}>
