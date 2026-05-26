@@ -208,7 +208,7 @@ export default function App() {
       <div style={{background:"linear-gradient(135deg,#0a1628 0%,#1a2f4e 50%,#0d2040 100%)",borderBottom:"3px solid #c8a84b",padding:"36px 32px 28px",textAlign:"center"}}>
         <div style={{fontSize:"2.2rem",marginBottom:6}}>⚾</div>
         <h1 style={{margin:"0 0 6px",fontSize:"2rem",fontWeight:"bold",color:"#c8a84b",letterSpacing:"0.1em",textTransform:"uppercase"}}>Tournament Pitcher Tracker</h1>
-        <p style={{margin:0,color:"#8fa8c8",fontSize:"0.88rem"}}>Fill in your details — we'll build the Google Sheet and send it straight to your inbox.</p>
+        <p style={{margin:0,color:"#8fa8c8",fontSize:"0.88rem"}}>Fill in the details for the Tournament and we'll build the Google spreadsheet. You can open it straight away and it will be sent to your inbox.</p>
       </div>
 
       <div style={{maxWidth:980,margin:"0 auto",padding:"0 20px"}}>
@@ -224,10 +224,10 @@ export default function App() {
             <div>
               <label style={lbl}>Start Date</label>
               <input style={inp} type="date" value={startDate} onChange={e=>setStartDate(e.target.value)}/>
-              <div style={{fontSize:"0.7rem",color:"#5a7a9a",marginTop:3}}>Sets season year for league age</div>
+              <div style={{fontSize:"0.7rem",color:"#5a7a9a",marginTop:3}}></div>
             </div>
             <div>
-              <label style={lbl}>League</label>
+              <label style={lbl}>Competition Division</label>
               <select style={sel} value={league} onChange={e=>setLeague(e.target.value)}>
                 {LEAGUES.map(l=><option key={l} value={l}>{LEAGUE_NAMES[l]} ({l})</option>)}
               </select>
@@ -236,7 +236,7 @@ export default function App() {
             <div>
               <label style={lbl}>Your Email</label>
               <input style={inp} type="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder="you@example.com"/>
-              <div style={{fontSize:"0.7rem",color:"#5a7a9a",marginTop:3}}>Sheet shared to this address</div>
+              <div style={{fontSize:"0.7rem",color:"#5a7a9a",marginTop:3}}>Spreadsheet shared to this address</div>
             </div>
           </div>
         </div>
