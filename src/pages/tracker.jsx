@@ -216,16 +216,56 @@ export default function App() {
     <div style={{minHeight:"100vh",background:"#0a1628",display:"flex",alignItems:"center",justifyContent:"center",flexDirection:"column",gap:20,fontFamily:"Georgia,serif",padding:24,textAlign:"center"}}>
       <div style={{fontSize:"3rem"}}>✅</div>
       <div style={{color:"#c8a84b",fontSize:"1.4rem",fontWeight:"bold",letterSpacing:"0.08em"}}>YOUR SHEET IS READY</div>
-      <div style={{color:"#8fa8c8",fontSize:"0.9rem",maxWidth:440,lineHeight:1.7}}>
+      <div style={{color:"#8fa8c8",fontSize:"0.9rem",maxWidth:480,lineHeight:1.7}}>
         Spreadsheet created and shared to <strong style={{color:"#c8a84b"}}>{email}</strong>.
         Check your inbox for the link, or open it directly below.
       </div>
+
       <a href={sheetUrl} target="_blank" rel="noreferrer" style={{
-        display:"inline-block",marginTop:8,padding:"14px 36px",borderRadius:8,
+        display:"inline-block",marginTop:4,padding:"14px 36px",borderRadius:8,
         background:"linear-gradient(135deg,#c8a84b,#a07830)",color:"#0a1628",
         fontWeight:"bold",fontSize:"1rem",textDecoration:"none",letterSpacing:"0.06em",
       }}>⚾ Open Spreadsheet</a>
-      <button style={{...btn("ghost"),marginTop:8}} onClick={()=>setStep(1)}>← Create Another</button>
+
+      <div style={{
+        background:"rgba(200,168,75,0.08)", border:"1px solid rgba(200,168,75,0.25)",
+        borderRadius:10, padding:"16px 20px", maxWidth:480,
+        fontSize:"0.82rem", color:"#c8d8e8", lineHeight:1.8, textAlign:"left",
+      }}>
+        <strong style={{color:"#c8a84b", display:"block", marginBottom:6}}>📁 To make yourself the owner:</strong>
+        Open the spreadsheet, then go to <strong style={{color:"#e8dcc8"}}>File → Make a copy</strong>.
+        Your copy will be fully owned by you in your Google Drive and you can rename or move it as needed.
+      </div>
+
+      <div style={{display:"flex",gap:12,marginTop:4,flexWrap:"wrap",justifyContent:"center"}}>
+        <button style={{...btn("ghost"),padding:"10px 24px"}} onClick={()=>setStep(1)}>
+          ✏️ Edit &amp; Update This Tracker
+        </button>
+        <button style={{
+          padding:"10px 24px", borderRadius:6, border:"1px solid rgba(200,80,80,0.4)",
+          cursor:"pointer", fontWeight:"bold", fontSize:"0.88rem",
+          background:"rgba(180,50,50,0.15)", color:"#e08080", fontFamily:"inherit",
+        }} onClick={()=>{
+          // Reset all form state for a fresh tracker
+          setTourneyName("Tournament 2025");
+          setStartDate("");
+          setEmail("");
+          setDivision("JL");
+          setNumDays(3);
+          setDays([emptyDay(0),emptyDay(1),emptyDay(2)]);
+          setTeams([emptyTeam(3),emptyTeam(3)]);
+          setSheetUrl("");
+          setErrMsg("");
+          setStep(1);
+        }}>
+          🗑️ Start New (Clear All)
+        </button>
+      </div>
+      <div style={{fontSize:"0.72rem",color:"#5a7a9a",maxWidth:420}}>
+        <strong style={{color:"#8fa8c8"}}>Edit &amp; Update</strong> — goes back to the form with all your current details intact so you can make changes and generate an updated sheet.
+        <br/>
+        <strong style={{color:"#8fa8c8"}}>Start New</strong> — clears everything and starts a blank tracker from scratch.
+      </div>
     </div>
   );
 
@@ -244,7 +284,7 @@ export default function App() {
       <div style={{background:"linear-gradient(135deg,#0a1628 0%,#1a2f4e 50%,#0d2040 100%)",borderBottom:"3px solid #c8a84b",padding:"36px 32px 28px",textAlign:"center"}}>
         <div style={{fontSize:"2.2rem",marginBottom:6}}>⚾</div>
         <h1 style={{margin:"0 0 6px",fontSize:"2rem",fontWeight:"bold",color:"#c8a84b",letterSpacing:"0.1em",textTransform:"uppercase"}}>Tournament Participation Tracker</h1>
-        <p style={{margin:0,color:"#8fa8c8",fontSize:"0.88rem"}}>Fill in the tournament details to generate your Google Spreadsheet.</p>
+        <p style={{margin:0,color:"#8fa8c8",fontSize:"0.88rem"}}>Fill in the details and we'll build your Google Sheet — ready to open straight away.</p>
       </div>
 
       <div style={{maxWidth:980,margin:"0 auto",padding:"0 20px"}}>
