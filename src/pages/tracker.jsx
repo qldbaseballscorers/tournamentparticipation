@@ -19,8 +19,8 @@ const DIVISION_MAX_PLAYERS = {
 const DIVISION_INFO = {
   "LL":     "Max 14 players · League age 9-12 · Cannot pitch in both games of a double-header",
   "IL":     "Max 14 players · League age 11-13 · Cannot pitch in both games of a double-header",
-  "JL":     "Max 14 players · League age 12-14 · Can pitch in G2 if ≤30 pitches in G1 (LA12 exception applies)",
-  "SL":     "Max 16 players · League age 13-16 · Can pitch in G2 if ≤30 pitches in G1",
+  "JL":     "Max 14 players · League age 12-14 · Can pitch in game 2 if ≤30 pitches in game 1 (League Age 12 exception applies)",
+  "SL":     "Max 16 players · League age 13-16 · Can pitch in game 2 if ≤30 pitches in game 1",
   "AYC U16":"18-20 players · Actual age at tournament start · One outing per day only",
   "AYC U18":"18-20 players · Actual age at tournament start · One outing per day only",
   "AWC":    "Max 18 players · Players 18+ at tournament start have no pitch limits · Under 18 rules apply",
@@ -244,7 +244,7 @@ export default function App() {
       <div style={{background:"linear-gradient(135deg,#0a1628 0%,#1a2f4e 50%,#0d2040 100%)",borderBottom:"3px solid #c8a84b",padding:"36px 32px 28px",textAlign:"center"}}>
         <div style={{fontSize:"2.2rem",marginBottom:6}}>⚾</div>
         <h1 style={{margin:"0 0 6px",fontSize:"2rem",fontWeight:"bold",color:"#c8a84b",letterSpacing:"0.1em",textTransform:"uppercase"}}>Tournament Participation Tracker</h1>
-        <p style={{margin:0,color:"#8fa8c8",fontSize:"0.88rem"}}>Fill in the details of your tournament to generate your Google Spreadsheet.</p>
+        <p style={{margin:0,color:"#8fa8c8",fontSize:"0.88rem"}}>Fill in the tournament details to generate your Google Spreadsheet.</p>
       </div>
 
       <div style={{maxWidth:980,margin:"0 auto",padding:"0 20px"}}>
